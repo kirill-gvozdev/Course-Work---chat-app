@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.Socket;
 
-public class Client {
+public class ClientTwo {
 
 
     private static final int PORT = 8818;
@@ -46,13 +46,12 @@ public class Client {
             }
             out.write("send " + msg + "\n");
             out.flush();
-
         }
     }
 
     public static void main(String[] args) {
 
-        Client client = new Client();
+        ClientTwo client = new ClientTwo();
 
         consoleReader = new BufferedReader(new InputStreamReader(System.in));
 

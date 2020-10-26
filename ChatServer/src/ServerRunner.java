@@ -6,11 +6,13 @@ import java.util.List;
 public class ServerRunner extends Thread {
     private final Socket clientSocket;
     private final Peer peer;
-    private String login = null;
+    private String login = "";
     OutputStream outputStream;
 
     User user1 = new User("user", "user");
     User user2 = new User("guest", "guest");
+
+
 
     List<User> userList = new ArrayList();
 
@@ -79,6 +81,7 @@ public class ServerRunner extends Thread {
     }
 
     private boolean handleLogin(OutputStream outputStream, String[] tokens) throws IOException {
+        List<String> list = new ArrayList<>();
         if (tokens.length == 3) {
             String login = tokens[1];
             String password = tokens[2];
@@ -86,20 +89,24 @@ public class ServerRunner extends Thread {
             if (login.equals(user1.getName()) && password.equals(user1.getPassword())) {
                 String msg = "ok login\n";
                 outputStream.write(msg.getBytes());
-                this.login = login;
-                System.out.println("User logged in: " + login);
+                list.add(login);
+                System.out.println("User logged in: " + login + "\n");
                 userList.add(user1);
                 user1.setOnline(true);
 
                 List<ServerRunner> serverRunners = peer.getServerRunners();
 
                 for (ServerRunner runner: serverRunners) {
-                    String currentConnection = "online " + runner.getLogin() + "\n";
-                    broadcast(currentConnection);
+                    if (!login.equals(runner.getLogin())) {
+                        String currentConnection = "online " + runner.getLogin() + "\n";
+                        broadcast(currentConnection);
+                    }
                 }
                 String onlineStatus = "online " + login + "\n";
                 for (ServerRunner runner: serverRunners) {
-                    runner.broadcast(onlineStatus);
+                    if (!login.equals(runner.getLogin())) {
+                        runner.broadcast(onlineStatus);
+                    }
                 }
 
                 return true;
@@ -115,12 +122,16 @@ public class ServerRunner extends Thread {
                 List<ServerRunner> serverRunners = peer.getServerRunners();
 
                 for (ServerRunner runner: serverRunners) {
-                    String currentConnection = "online " + runner.getLogin() + "\n";
-                    broadcast(currentConnection);
+                    if (!login.equals(runner.getLogin())) {
+                        String currentConnection = "online " + runner.getLogin() + "\n";
+                        broadcast(currentConnection);
+                    }
                 }
                 String onlineStatus = "online " + login + "\n";
                 for (ServerRunner runner: serverRunners) {
-                    runner.broadcast(onlineStatus);
+                    if (!login.equals(runner.getLogin())) {
+                        runner.broadcast(onlineStatus);
+                    }
                 }
                 return true;
             } else {
