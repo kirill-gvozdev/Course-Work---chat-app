@@ -3,7 +3,6 @@ import java.net.Socket;
 
 public class Client {
 
-
     private static final int PORT = 4999;
     private static final String HOST = "localhost";
     private static Socket clientSocket; //сокет для соединения
