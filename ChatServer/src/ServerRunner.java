@@ -65,12 +65,6 @@ public class ServerRunner extends Thread {
 
     private void messenger(String[] tokens) throws IOException {
         List<ServerRunner> serverRunners = peer.getServerRunners();
-/*        StringBuffer sb = new StringBuffer();
-
-        for (int i = 0; i < tokens.length; i++) {
-            sb.append(tokens[i]);
-        }
-        String outputMessage = sb.toString();*/
         tokens[0] = "";
         String str = String.join(" ", tokens);
 
@@ -144,5 +138,6 @@ public class ServerRunner extends Thread {
 
     private void broadcast(String onlineStatus) throws IOException {
         outputStream.write(onlineStatus.getBytes());
+        outputStream.flush();
     }
 }
