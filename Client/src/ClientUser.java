@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.Socket;
 
-public class ClientTwo {
+public class ClientUser {
 
 
     private static final int PORT = 8818;
@@ -16,14 +16,11 @@ public class ClientTwo {
         System.out.println("Enter username and password separated by a space: ");
         String login = consoleReader.readLine();
         out.write("login " + login + "\n");
-        //out.write(login + "\n");
         out.flush();
         System.out.println("...waiting for server' answer...");
         String serverAnswer = in.readLine();
         if (serverAnswer.equalsIgnoreCase("ok login")) {
-            System.out.println("Authorization completed successfully!");
-//                    "" +
-//                    " Let start chatting >>>");
+            System.out.println("Authorization completed successfully! Let start chatting >>>");
             return true;
         }
         else {
@@ -32,12 +29,14 @@ public class ClientTwo {
         }
     }
 
+    //TODO этот метод нужно будет потом удалить
     private void chatting () throws IOException {
         while (!clientSocket.isClosed()) {
+
             String serverAnswer = in.readLine(); //null;
             //while (serverAnswer == null) {
             //    serverAnswer = in.readLine();}
-            System.out.println(serverAnswer);
+
 
             System.out.print("  >>>>  ");
             String msg = consoleReader.readLine();
@@ -46,32 +45,63 @@ public class ClientTwo {
                 out.flush();
                 break;
             }
+            if (msg.equals("")) continue;
             out.write("send " + msg + "\n");
             out.flush();
 
         }
     }
 
+    private void getMessage () throws IOException {
+
+        if (in.ready()) {
+            String serverAnswer = in.readLine();
+            System.out.println(serverAnswer);
+        }
+
+    }
+
+    private boolean sendMessage () throws IOException {
+        if (consoleReader.ready()) {
+            String msg = consoleReader.readLine();
+            if (!msg.equals("")) {
+                if (msg.equals("quit")) {
+                    out.write(msg);
+                    out.flush();
+                    return false;
+                } else {
+                    out.write("send " + msg + "\n");
+                    out.flush();
+                }
+            }
+        }
+        return true;
+    }
+
     public static void main(String[] args) {
 
-        ClientTwo client = new ClientTwo();
+        ClientUser client = new ClientUser();
 
         consoleReader = new BufferedReader(new InputStreamReader(System.in));
+
 
         try {
             clientSocket = new Socket(HOST, PORT);
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
+            boolean chatting = true;
             if (client.login()) {
-                client.chatting();
+                while (chatting) {
+//                while (!clientSocket.isClosed()) {
+                    client.getMessage();
+                    chatting = client.sendMessage();
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
+
         } finally {
             try {
-                //out.write("quit\n");
-                //out.flush();
                 clientSocket.close();
                 in.close();
                 out.close();

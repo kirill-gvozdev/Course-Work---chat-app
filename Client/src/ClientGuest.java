@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.Socket;
 
-public class AnotherClient {
+public class ClientGuest {
 
 
     private static final int PORT = 8818;
@@ -9,7 +9,6 @@ public class AnotherClient {
     private static Socket clientSocket; //сокет для соединения
     private static BufferedReader consoleReader; // буфер для чтения из консоли
 
-    OutputStream outputStream;
     private static BufferedReader in; // поток чтения из сокета
     private static BufferedWriter out; // поток записи в сокет
 
@@ -17,7 +16,6 @@ public class AnotherClient {
         System.out.println("Enter username and password separated by a space: ");
         String login = consoleReader.readLine();
         out.write("login " + login + "\n");
-        //out.write(login + "\n");
         out.flush();
         System.out.println("...waiting for server' answer...");
         String serverAnswer = in.readLine();
@@ -31,6 +29,7 @@ public class AnotherClient {
         }
     }
 
+    //TODO to delete later
     private void chatting () throws IOException {
         while (!clientSocket.isClosed()) {
 
@@ -62,23 +61,26 @@ public class AnotherClient {
 
     }
 
-    private void sendMessage () throws IOException {
+    private boolean sendMessage () throws IOException {
         if (consoleReader.ready()) {
             String msg = consoleReader.readLine();
             if (!msg.equals("")) {
                 if (msg.equals("quit")) {
                     out.write(msg);
+                    out.flush();
+                    return false;
                 } else {
                     out.write("send " + msg + "\n");
+                    out.flush();
                 }
-                out.flush();
             }
         }
+        return true;
     }
 
     public static void main(String[] args) {
 
-        AnotherClient client = new AnotherClient();
+        ClientGuest client = new ClientGuest();
 
         consoleReader = new BufferedReader(new InputStreamReader(System.in));
 
@@ -87,11 +89,12 @@ public class AnotherClient {
             clientSocket = new Socket(HOST, PORT);
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
+            boolean chatting = true;
             if (client.login()) {
-                while (!clientSocket.isClosed()) {
+                while (chatting) {
+//                while (!clientSocket.isClosed()) {
                     client.getMessage();
-                    client.sendMessage();
+                    chatting = client.sendMessage();
                 }
             }
         } catch (IOException e) {

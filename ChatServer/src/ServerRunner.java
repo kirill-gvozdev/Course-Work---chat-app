@@ -60,6 +60,7 @@ public class ServerRunner extends Thread {
     }
 
     private void logOff() {
+        System.out.println(login + "logged off");
         peer.removeClient(this);
     }
 
@@ -75,7 +76,6 @@ public class ServerRunner extends Thread {
     }
 
     private boolean handleLogin(OutputStream outputStream, String[] tokens) throws IOException {
-        List<String> list = new ArrayList<>();
         if (tokens.length == 3) {
             String login = tokens[1];
             String password = tokens[2];
@@ -83,7 +83,7 @@ public class ServerRunner extends Thread {
             if (login.equals(user1.getName()) && password.equals(user1.getPassword())) {
                 String msg = "ok login\n";
                 outputStream.write(msg.getBytes());
-                list.add(login);
+                this.login = login;
                 System.out.println("User logged in: " + login + "\n");
                 userList.add(user1);
                 user1.setOnline(true);
@@ -91,7 +91,7 @@ public class ServerRunner extends Thread {
                 List<ServerRunner> serverRunners = peer.getServerRunners();
 
                 for (ServerRunner runner: serverRunners) {
-                    if (!login.equals(runner.getLogin())) {
+                    if (!login.equals(runner.getLogin()) && runner.getLogin() != null) {
                         String currentConnection = "online " + runner.getLogin() + "\n";
                         broadcast(currentConnection);
                     }
@@ -116,7 +116,7 @@ public class ServerRunner extends Thread {
                 List<ServerRunner> serverRunners = peer.getServerRunners();
 
                 for (ServerRunner runner: serverRunners) {
-                    if (!login.equals(runner.getLogin())) {
+                    if (!login.equals(runner.getLogin()) && runner.getLogin() != null) {
                         String currentConnection = "online " + runner.getLogin() + "\n";
                         broadcast(currentConnection);
                     }
@@ -137,7 +137,9 @@ public class ServerRunner extends Thread {
     }
 
     private void broadcast(String onlineStatus) throws IOException {
-        outputStream.write(onlineStatus.getBytes());
-        outputStream.flush();
+        if (login != null) {
+            outputStream.write(onlineStatus.getBytes());
+            outputStream.flush();
+        }
     }
 }
