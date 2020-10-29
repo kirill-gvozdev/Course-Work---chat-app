@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class User {
 
     private String name;
@@ -14,6 +17,10 @@ public class User {
 
     public String getPassword() {
         return password;
+    }
+
+    public User() {
+
     }
 
     public User(String name, String password) {
