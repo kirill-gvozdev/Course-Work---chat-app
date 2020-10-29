@@ -58,17 +58,13 @@ public class ServerRunner extends Thread {
     }
 
     private void logOff() {
+
+        System.out.println(login);
         peer.removeClient(this);
     }
 
     private void messenger(String[] tokens) throws IOException {
         List<ServerRunner> serverRunners = peer.getServerRunners();
-/*        StringBuffer sb = new StringBuffer();
-
-        for (int i = 0; i < tokens.length; i++) {
-            sb.append(tokens[i]);
-        }
-        String outputMessage = sb.toString();*/
         tokens[0] = "";
         String str = String.join(" ", tokens);
 
@@ -79,53 +75,37 @@ public class ServerRunner extends Thread {
     }
 
     private boolean handleLogin(OutputStream outputStream, String[] tokens) throws IOException {
+        userList.add(user1);
+        userList.add(user2);
         if (tokens.length == 3) {
             String login = tokens[1];
             String password = tokens[2];
 
-            if (login.equals(user1.getName()) && password.equals(user1.getPassword())) {
-                String msg = "ok login\n";
-                outputStream.write(msg.getBytes());
-                this.login = login;
-                System.out.println("User logged in: " + login);
-                userList.add(user1);
-                user1.setOnline(true);
+            for (int i = 0; i < userList.size(); i++) {
+                if (login.equals(userList.get(i).getName()) && password.equals(userList.get(i).getPassword())) {
+                    String msg = "ok login\n";
+                    outputStream.write(msg.getBytes());
+                    this.login = login;
+                    System.out.println("User logged in: " + login);
 
-                List<ServerRunner> serverRunners = peer.getServerRunners();
+                    List<ServerRunner> serverRunners = peer.getServerRunners();
 
-                for (ServerRunner runner: serverRunners) {
-                    String currentConnection = "online " + runner.getLogin() + "\n";
-                    broadcast(currentConnection);
+                    for (ServerRunner runner : serverRunners) {
+                        if (!login.equals(runner.login)) {
+                            String currentConnection = "online " + runner.getLogin() + "\n";
+                            broadcast(currentConnection);
+                        }
+                    }
+                    String onlineStatus = "online " + login + "\n";
+                    for (ServerRunner runner : serverRunners) {
+                        runner.broadcast(onlineStatus);
+                    }
+
+                    return true;
+                } else {
+                    String msg = "Login error\n";
+                    outputStream.write(msg.getBytes());
                 }
-                String onlineStatus = "online " + login + "\n";
-                for (ServerRunner runner: serverRunners) {
-                    runner.broadcast(onlineStatus);
-                }
-
-                return true;
-            } else if (login.equals(user2.getName()) && password.equals(user2.getPassword())) {
-                String msg = "ok login\n";
-                outputStream.write(msg.getBytes());
-                this.login = login;
-                System.out.println("User logged in: " + login + "\n");
-                userList.add(user2);
-                user2.setOnline(true);
-
-
-                List<ServerRunner> serverRunners = peer.getServerRunners();
-
-                for (ServerRunner runner: serverRunners) {
-                    String currentConnection = "online " + runner.getLogin() + "\n";
-                    broadcast(currentConnection);
-                }
-                String onlineStatus = "online " + login + "\n";
-                for (ServerRunner runner: serverRunners) {
-                    runner.broadcast(onlineStatus);
-                }
-                return true;
-            } else {
-                String msg = "Login error\n";
-                outputStream.write(msg.getBytes());
             }
         }
         return false;
