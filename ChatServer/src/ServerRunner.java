@@ -49,6 +49,8 @@ public class ServerRunner extends Thread {
                     handleLogin(outputStream, tokens);
                 } else if ("send".equalsIgnoreCase(cmd)) {
                     messenger(tokens);
+                } else if ("registration".equalsIgnoreCase(cmd)) {
+                    registration(outputStream, tokens);
                 }
 
             }
@@ -56,9 +58,27 @@ public class ServerRunner extends Thread {
         clientSocket.close();
     }
 
-    private void logOff() {
+    private void registration(OutputStream outputStream, String[] tokens) throws IOException {
+        if (tokens.length == 3) {
+            String login = tokens[1];
+            String password = tokens[2];
+            User newUser = new User(login, password);
+            db.addNewUser(newUser);
+            String msg = "New user registered " + "login: " + login + ", password: " + password +"\n";
+            outputStream.write(msg.getBytes());
+        } else {
+            String msg = "Registration failed\n";
+            outputStream.write(msg.getBytes());
+        }
+    }
 
+    private void logOff() throws IOException {
+        List<ServerRunner> serverRunners = peer.getServerRunners();
         System.out.println(login);
+        String onlineStatus = "offline " + login + "\n";
+        for (ServerRunner runner : serverRunners) {
+            runner.broadcast(onlineStatus);
+        }
         peer.removeClient(this);
     }
 

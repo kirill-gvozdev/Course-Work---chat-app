@@ -13,6 +13,10 @@ public class UserDatabase {
         userList.add(user2);
     }
 
+    public void addNewUser(User user) {
+        userList.add(user);
+    }
+
     public List<User> getUserList() {
         return userList;
     }
