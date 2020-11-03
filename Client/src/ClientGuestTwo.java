@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.Socket;
 
-public class ClientGuest {
+public class ClientGuestTwo {
 
 
     private static final int PORT = 8818;
@@ -12,7 +12,7 @@ public class ClientGuest {
     private static BufferedReader in; // поток чтения из сокета
     private static BufferedWriter out; // поток записи в сокет
 
-    private boolean login () throws IOException {
+    public boolean login () throws IOException {
         System.out.println("Enter username and password separated by a space: ");
         String login = consoleReader.readLine();
         out.write("login " + login + "\n");
@@ -24,33 +24,29 @@ public class ClientGuest {
             return true;
         }
         else {
-            System.out.println("Authorization failed. Username or password is not correct >>> quit");
-            return false;
-        }
-    }
-
-    //TODO to delete later
-    private void chatting () throws IOException {
-        while (!clientSocket.isClosed()) {
-
-            String serverAnswer = in.readLine(); //null;
-            //while (serverAnswer == null) {
-            //    serverAnswer = in.readLine();}
-
-
-            System.out.print("  >>>>  ");
-            String msg = consoleReader.readLine();
-            if (msg.equals("quit")) {
-                out.write(msg);
-                out.flush();
-                break;
-            }
-            if (msg.equals("")) continue;
-            out.write("send " + msg + "\n");
+            out.write("registration " + login + "\n");
             out.flush();
-
+            if (!serverAnswer.equalsIgnoreCase("Registration failed")) {
+                System.out.println("Authorization completed successfully! Let start chatting >>>");
+                return true;
+            } else {
+                System.out.println("Authorization failed. Username or password is not correct >>> quit");
+                return false;
+            }
         }
     }
+
+
+//
+//
+//        if (consoleReader.ready()) {
+//            String msg = consoleReader.readLine();
+//            if (!msg.equals("")) {
+//                if (msg.equals("quit")) out.write(msg);
+//                else out.write("send " + msg + "\n");
+//                out.flush();
+//            }
+//        }
 
     private void getMessage () throws IOException {
 
@@ -80,7 +76,7 @@ public class ClientGuest {
 
     public static void main(String[] args) {
 
-        ClientGuest client = new ClientGuest();
+        ClientGuestTwo client = new ClientGuestTwo();
 
         consoleReader = new BufferedReader(new InputStreamReader(System.in));
 
@@ -92,7 +88,6 @@ public class ClientGuest {
             boolean chatting = true;
             if (client.login()) {
                 while (chatting) {
-//                while (!clientSocket.isClosed()) {
                     client.getMessage();
                     chatting = client.sendMessage();
                 }

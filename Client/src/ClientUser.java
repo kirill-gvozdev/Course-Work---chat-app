@@ -3,111 +3,121 @@ import java.net.Socket;
 
 public class ClientUser {
 
-
-    private static final int PORT = 8818;
-    private static final String HOST = "localhost";
-    private static Socket clientSocket; //сокет для соединения
-    private static BufferedReader consoleReader; // буфер для чтения из консоли
-
     private static BufferedReader in; // поток чтения из сокета
     private static BufferedWriter out; // поток записи в сокет
 
-    private boolean login () throws IOException {
-        System.out.println("Enter username and password separated by a space: ");
-        String login = consoleReader.readLine();
-        out.write("login " + login + "\n");
-        out.flush();
-        System.out.println("...waiting for server' answer...");
-        String serverAnswer = in.readLine();
-        if (serverAnswer.equalsIgnoreCase("ok login")) {
-            System.out.println("Authorization completed successfully! Let start chatting >>>");
-            return true;
-        }
-        else {
-            System.out.println("Authorization failed. Username or password is not correct >>> quit");
-            return false;
-        }
+    private UserWindow connectionListener;
+    private final Socket socket;
+
+    private final Thread thread; // слушает входящие сообщения (постоянно читает поток ввода), если строчка прилетела - генерирует событие
+
+
+
+    public ClientUser (UserWindow messenger, String host, int port) throws IOException {
+        this(messenger, new Socket(host, port));
     }
+    public ClientUser (UserWindow messenger, Socket socket) throws IOException {
 
-    //TODO этот метод нужно будет потом удалить
-    private void chatting () throws IOException {
-        while (!clientSocket.isClosed()) {
+        //сокет для соединения
+        this.socket = socket;
+        this.connectionListener = messenger;
 
-            String serverAnswer = in.readLine(); //null;
-            //while (serverAnswer == null) {
-            //    serverAnswer = in.readLine();}
+        out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-
-            System.out.print("  >>>>  ");
-            String msg = consoleReader.readLine();
-            if (msg.equals("quit")) {
-                out.write(msg);
-                out.flush();
-                break;
-            }
-            if (msg.equals("")) continue;
-            out.write("send " + msg + "\n");
-            out.flush();
-
-        }
-    }
-
-    private void getMessage () throws IOException {
-
-        if (in.ready()) {
-            String serverAnswer = in.readLine();
-            System.out.println(serverAnswer);
-        }
-
-    }
-
-    private boolean sendMessage () throws IOException {
-        if (consoleReader.ready()) {
-            String msg = consoleReader.readLine();
-            if (!msg.equals("")) {
-                if (msg.equals("quit")) {
-                    out.write(msg);
+        thread = new Thread(new Runnable() { // через анонимный класс Runnable 
+            @Override
+            public void run() { // метод run слушает входящее соединение
+                try {
+                    // login
+                    String msg1 = "login " + messenger.fieldNickname.getName() + " " + messenger.fieldNickname.getName();
+                    System.out.println(msg1);
+                    out.write(msg1);
+//                    out.write("login " + messenger.fieldNickname.getName() + " " + messenger.fieldNickname.getName());
                     out.flush();
-                    return false;
+
+//                    String serverAnswer = getMessage();
+
+                    // далее в бесконечном цикле
+                    // пока поток-нить thread не прерван читаем строки из буфера
+
+                    while (!thread.isInterrupted()) {
+                        String msg = in.readLine();
+                        System.out.println(msg);
+                        connectionListener.getMessageFromClient(ClientUser.this, msg); // строку сообщения - юзеру
+
+                    }
+                } catch (IOException e) {
+                    connectionListener.onException(ClientUser.this, e);
+                } finally {
+                    connectionListener.onDisconnect(ClientUser.this); // сообщение о дисконнекте
+
+                    try {
+                        socket.close();
+                        in.close();
+                        out.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+
+                    }
+
+                }
+            }
+        }); // генерация нового потока
+        thread.start(); // запуск потока
+
+
+//    private void login (String log) throws IOException {
+//        out.write("login " + log + " " + log + "\n");
+//        out.flush();
+//        String serverAnswer = getMessage();
+//        if (serverAnswer.equalsIgnoreCase("ok login")) {
+//            //TODO System.out.println("Authorization completed successfully! Let start chatting >>>");
+//            return true;
+//        }
+//        else {
+//            //TODO System.out.println("Authorization failed. Username or password is not correct >>> quit");
+//            return false;
+//        }
+    }
+
+    public void sendMessage (String msg) {  //throws IOException {
+                if (msg.equals("quit\n")) {
+                    try {
+                        out.write(msg);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 } else {
-                    out.write("send " + msg + "\n");
-                    out.flush();
+                    try {
+                        out.write("send " + msg + "\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        }
-        return true;
-    }
-
-    public static void main(String[] args) {
-
-        ClientUser client = new ClientUser();
-
-        consoleReader = new BufferedReader(new InputStreamReader(System.in));
-
-
         try {
-            clientSocket = new Socket(HOST, PORT);
-            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            boolean chatting = true;
-            if (client.login()) {
-                while (chatting) {
-//                while (!clientSocket.isClosed()) {
-                    client.getMessage();
-                    chatting = client.sendMessage();
-                }
-            }
+            out.flush();
         } catch (IOException e) {
             e.printStackTrace();
-
-        } finally {
+        }
+    }
+    public void sendQuit (String msg) {
             try {
-                clientSocket.close();
-                in.close();
-                out.close();
+                out.write(msg);
+                out.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+    }
+
+
+    private String getMessage () {
+        try {
+            return in.readLine();
+        } catch (IOException e) {
+            return "Connection exception" + e;
         }
     }
+
+
 }
