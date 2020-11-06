@@ -8,6 +8,7 @@ public class ServerRunner extends Thread {
     private final Peer peer;
     private String login = null;
     OutputStream outputStream;
+    boolean onlineStatus = false;
 
 
     UserDatabase db = new UserDatabase();
@@ -48,7 +49,13 @@ public class ServerRunner extends Thread {
                 } else if ("login".equalsIgnoreCase(cmd)) {
                     handleLogin(outputStream, tokens);
                 } else if ("send".equalsIgnoreCase(cmd)) {
-                    messenger(tokens);
+                    if (!onlineStatus) {
+                        String msg = "User not logged in" +"\n";
+                        outputStream.write(msg.getBytes());
+                    } else {
+                        messenger(tokens);
+                    }
+
                 } else if ("registration".equalsIgnoreCase(cmd)) {
                     registration(outputStream, tokens);
                 }
@@ -75,10 +82,12 @@ public class ServerRunner extends Thread {
     private void logOff() throws IOException {
         List<ServerRunner> serverRunners = peer.getServerRunners();
         System.out.println(login);
-        String onlineStatus = "offline " + login + "\n";
+        String logoffMsg = "offline " + login + "\n";
         for (ServerRunner runner : serverRunners) {
-            runner.broadcast(onlineStatus);
+            runner.broadcast(logoffMsg);
         }
+        System.out.println(logoffMsg);
+        onlineStatus = false;
         peer.removeClient(this);
     }
 
@@ -118,11 +127,11 @@ public class ServerRunner extends Thread {
                                 broadcast(currentConnection);
                             }
                         }
-                        String onlineStatus = "online " + login + "\n";
+                        String userOnlineStatus = "online " + login + "\n";
                         for (ServerRunner runner : serverRunners) {
-                            runner.broadcast(onlineStatus);
+                            runner.broadcast(userOnlineStatus);
                         }
-
+                        onlineStatus = true;
                         return true;
                     } else {
                         String msg = "Login error\n";
