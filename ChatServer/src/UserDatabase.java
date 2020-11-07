@@ -1,7 +1,6 @@
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class UserDatabase {
 
@@ -16,29 +15,23 @@ public class UserDatabase {
     }
 
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
-
+    public void addNewUser(User user) throws IOException {
+        userList.add(user);
         FileOutputStream fos = new FileOutputStream("/C:/Users/User/Desktop/UserBase.tmp/");
         ObjectOutputStream oos = new ObjectOutputStream(fos);
         oos.writeObject(userList);
         oos.close();
+    }
+
+
+    public List<User> getUserList() throws IOException, ClassNotFoundException {
 
         FileInputStream fis = new FileInputStream("/C:/Users/User/Desktop/UserBase.tmp/");
         ObjectInputStream ois = new ObjectInputStream(fis);
         List<User> userList = (List<User>) ois.readObject();
         ois.close();
-    }
-
-
-
-    public void addNewUser(User user) {
-        userList.add(user);
-    }
-
-    public List<User> getUserList() {
         return userList;
     }
-
 
 
 }

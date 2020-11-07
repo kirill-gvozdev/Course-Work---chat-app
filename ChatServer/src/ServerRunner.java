@@ -23,7 +23,7 @@ public class ServerRunner extends Thread {
     public void run() {
         try {
             handleClientSocket();
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
@@ -32,8 +32,7 @@ public class ServerRunner extends Thread {
         return login;
     }
 
-    private void handleClientSocket() throws IOException {
-        db.initialiseUserList();
+    private void handleClientSocket() throws IOException, ClassNotFoundException {
         InputStream inputStream = clientSocket.getInputStream();
         this.outputStream = clientSocket.getOutputStream();
 
@@ -65,12 +64,13 @@ public class ServerRunner extends Thread {
         clientSocket.close();
     }
 
-    private void registration(OutputStream outputStream, String[] tokens) throws IOException {
+    private void registration(OutputStream outputStream, String[] tokens) throws IOException, ClassNotFoundException {
         if (tokens.length == 3) {
             String login = tokens[1];
             String password = tokens[2];
             User newUser = new User(login, password);
             db.addNewUser(newUser);
+            //db.updateDB();
             String msg = "New user registered " + "login: " + login + ", password: " + password +"\n";
             outputStream.write(msg.getBytes());
         } else {
@@ -102,7 +102,7 @@ public class ServerRunner extends Thread {
         }
     }
 
-    private boolean handleLogin(OutputStream outputStream, String[] tokens) throws IOException {
+    private boolean handleLogin(OutputStream outputStream, String[] tokens) throws IOException, ClassNotFoundException {
 
         User connectedUser = null;
 
