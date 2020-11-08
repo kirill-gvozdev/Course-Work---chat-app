@@ -8,7 +8,6 @@ public class ServerRunner extends Thread {
     private final Peer peer;
     private String login = null;
     OutputStream outputStream;
-    boolean onlineStatus = false;
 
 
     UserDatabase db = new UserDatabase();
@@ -23,7 +22,7 @@ public class ServerRunner extends Thread {
     public void run() {
         try {
             handleClientSocket();
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -32,7 +31,8 @@ public class ServerRunner extends Thread {
         return login;
     }
 
-    private void handleClientSocket() throws IOException, ClassNotFoundException {
+    private void handleClientSocket() throws IOException {
+        db.initialiseUserList();
         InputStream inputStream = clientSocket.getInputStream();
         this.outputStream = clientSocket.getOutputStream();
 
@@ -48,13 +48,7 @@ public class ServerRunner extends Thread {
                 } else if ("login".equalsIgnoreCase(cmd)) {
                     handleLogin(outputStream, tokens);
                 } else if ("send".equalsIgnoreCase(cmd)) {
-                    if (!onlineStatus) {
-                        String msg = "User not logged in" +"\n";
-                        outputStream.write(msg.getBytes());
-                    } else {
-                        messenger(tokens);
-                    }
-
+                    messenger(tokens);
                 } else if ("registration".equalsIgnoreCase(cmd)) {
                     registration(outputStream, tokens);
                 }
@@ -64,13 +58,12 @@ public class ServerRunner extends Thread {
         clientSocket.close();
     }
 
-    private void registration(OutputStream outputStream, String[] tokens) throws IOException, ClassNotFoundException {
+    private void registration(OutputStream outputStream, String[] tokens) throws IOException {
         if (tokens.length == 3) {
             String login = tokens[1];
             String password = tokens[2];
             User newUser = new User(login, password);
             db.addNewUser(newUser);
-            //db.updateDB();
             String msg = "New user registered " + "login: " + login + ", password: " + password +"\n";
             outputStream.write(msg.getBytes());
         } else {
@@ -82,12 +75,10 @@ public class ServerRunner extends Thread {
     private void logOff() throws IOException {
         List<ServerRunner> serverRunners = peer.getServerRunners();
         System.out.println(login);
-        String logoffMsg = "offline " + login + "\n";
+        String onlineStatus = "offline " + login + "\n";
         for (ServerRunner runner : serverRunners) {
-            runner.broadcast(logoffMsg);
+            runner.broadcast(onlineStatus);
         }
-        System.out.println(logoffMsg);
-        onlineStatus = false;
         peer.removeClient(this);
     }
 
@@ -102,7 +93,7 @@ public class ServerRunner extends Thread {
         }
     }
 
-    private boolean handleLogin(OutputStream outputStream, String[] tokens) throws IOException, ClassNotFoundException {
+    private boolean handleLogin(OutputStream outputStream, String[] tokens) throws IOException {
 
         User connectedUser = null;
 
@@ -127,11 +118,11 @@ public class ServerRunner extends Thread {
                                 broadcast(currentConnection);
                             }
                         }
-                        String userOnlineStatus = "online " + login + "\n";
+                        String onlineStatus = "online " + login + "\n";
                         for (ServerRunner runner : serverRunners) {
-                            runner.broadcast(userOnlineStatus);
+                            runner.broadcast(onlineStatus);
                         }
-                        onlineStatus = true;
+
                         return true;
                     } else {
                         String msg = "Login error\n";

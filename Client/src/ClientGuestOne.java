@@ -36,18 +36,6 @@ public class ClientGuestOne {
         }
     }
 
-
-//
-//
-//        if (consoleReader.ready()) {
-//            String msg = consoleReader.readLine();
-//            if (!msg.equals("")) {
-//                if (msg.equals("quit")) out.write(msg);
-//                else out.write("send " + msg + "\n");
-//                out.flush();
-//            }
-//        }
-
     private void getMessage () throws IOException {
 
         if (in.ready()) {
@@ -88,7 +76,6 @@ public class ClientGuestOne {
             boolean chatting = true;
             if (client.login()) {
                 while (chatting) {
-//                while (!clientSocket.isClosed()) {
                     client.getMessage();
                     chatting = client.sendMessage();
                 }

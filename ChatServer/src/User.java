@@ -1,9 +1,15 @@
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-public class User implements Serializable {
+public class User {
 
     private String name;
     private String password;
+    private boolean online = false;
+
+    public void setOnline(boolean online) {
+        this.online = online;
+    }
 
     public String getName() {
         return name;
