@@ -5,6 +5,8 @@ import java.net.Socket;
 
 public class ClientUser {
 
+    private static String msg;
+
     private static BufferedReader in; // поток чтения из сокета
     private static BufferedWriter out; // поток записи в сокет
 
@@ -44,7 +46,7 @@ public class ClientUser {
                     // пока поток-нить thread не прерван читаем строки из буфера
 
                     while (!thread.isInterrupted()) {
-                        String msg = in.readLine();
+                        msg = in.readLine();
                         System.out.println(msg);
 //                        connectionListener.getMessageFromClient(ClientUser.this, msg); // строку сообщения - юзеру
 
