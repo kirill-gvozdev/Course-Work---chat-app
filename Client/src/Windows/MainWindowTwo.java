@@ -1,10 +1,12 @@
 package Windows;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.IOException;
-import javax.swing.*;
 
-public class MainWindow extends JFrame implements ActionListener {
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+
+public class MainWindowTwo extends JFrame implements ActionListener {
 
         JPanel panel;
         JLabel user_label, password_label, message;
@@ -16,7 +18,7 @@ public class MainWindow extends JFrame implements ActionListener {
 
         ClientUser connection;
 
-    MainWindow() {
+    MainWindowTwo() {
             // Username Label
             user_label = new JLabel();
             user_label.setText("User Name :");
@@ -55,7 +57,7 @@ public class MainWindow extends JFrame implements ActionListener {
         }
     }
         public static void main(String[] args) {
-            new MainWindow();
+            new MainWindowTwo();
         }
         @Override
         public void actionPerformed(ActionEvent e) {

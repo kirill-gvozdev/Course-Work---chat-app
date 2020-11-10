@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 public class ChatWindow extends JFrame {
 
@@ -37,8 +38,11 @@ public class ChatWindow extends JFrame {
                 String msg = fieldInput.getText();  // у поля fieldInput через метод getText() получаем строчку, которую ввели
                 if (msg.equals("")) return;         // если это было случайное нажатие. и строка пустая
                 fieldInput.setText(null);           // очищаем поле для нового сообщения
-                connection.sendMessage(msg);
-                printMsg(msg);
+                try {
+                    printMsg(connection.sendMessage(msg));
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
             }
         });
     }
@@ -55,14 +59,5 @@ public class ChatWindow extends JFrame {
                 log.setCaretPosition(log.getDocument().getLength()); //  установки коретки в самый конец документа
             }
         });
-
     }
-
-//    @Override
-//    public void actionPerformed(ActionEvent e) { // метод вызывается при нажании на Enter
-//        String msg = fieldInput.getText();  // у поля fieldInput через метод getText() получаем строчку, которую ввели
-//        if (msg.equals("")) return;         // если это было случайное нажатие. и строка пустая
-//        fieldInput.setText(null);           // очищаем поле для нового сообщения
-//        //connection.sendMessage(msg);
-
 }
