@@ -1,90 +1,100 @@
 package Windows;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
+import java.io.*;
 import javax.swing.*;
 
 public class MainWindow extends JFrame implements ActionListener {
 
-        JPanel panel;
-        JLabel user_label, password_label, message;
-        JTextField userName_text;
-        JFormattedTextField password_text;
-        JButton login, registration;
-        static final int PORT = 8818;
-        static final String HOST = "localhost";
+    JPanel panel;
+    JLabel user_label, password_label, message;
+    JTextField userName_text;
+    JFormattedTextField password_text;
+    JButton login, registration;
 
-        ClientUser connection;
+    Client connection;
+    ChatWindow chatWindow;
+    RegistrationWindow registrationWindow;
 
     MainWindow() {
-            // Username Label
-            user_label = new JLabel();
-            user_label.setText("User Name :");
-            userName_text = new JTextField();
-            // Password Label
-            password_label = new JLabel();
-            password_label.setText("Password :");
-            password_text = new JFormattedTextField();
-            // Submit
-            login = new JButton("Login");
-            registration = new JButton("Registration");
-            panel = new JPanel(new GridLayout(3, 1));
-            panel.add(user_label);
-            panel.add(userName_text);
-            panel.add(password_label);
-            panel.add(password_text);
-            panel.add(login);
-            panel.add(registration);
-            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            // Adding the listeners to components..
-            login.addActionListener(this);
-            login.setActionCommand("login");
-            registration.addActionListener(this);
-            registration.setActionCommand("registration");
-            add(panel, BorderLayout.CENTER);
+        // Username Label
+        user_label = new JLabel();
+        user_label.setText("User Name :");
+        userName_text = new JTextField();
+        // Password Label
+        password_label = new JLabel();
+        password_label.setText("Password :");
+        password_text = new JFormattedTextField();
+        // Submit
+        login = new JButton("Login");
+        registration = new JButton("Registration");
+        panel = new JPanel(new GridLayout(3, 1));
+        panel.add(user_label);
+        panel.add(userName_text);
+        panel.add(password_label);
+        panel.add(password_text);
+        panel.add(login);
+        panel.add(registration);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // Adding the listeners to components..
+        login.addActionListener(this);
+        login.setActionCommand("login");
+        registration.addActionListener(this);
+        registration.setActionCommand("registration");
+        add(panel, BorderLayout.CENTER);
 
-            setTitle("Please Login Here !");
-            setSize(450,210);
-            setLocationRelativeTo(null);
-            setVisible(true);
+        setTitle("Please Login Here !");
+        setSize(450, 210);
+        setLocationRelativeTo(null);
+        setVisible(true);
 
-        try {
-            connection = new ClientUser(HOST, PORT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        connection = new Client();
+
+//            chatWindow = new ChatWindow(connection);
+//            registrationWindow = new RegistrationWindow();
+
     }
-        public static void main(String[] args) {
-            new MainWindow();
-        }
-        @Override
-        public void actionPerformed(ActionEvent e) {
 
-        String userName = userName_text.getText();
-        String password = password_text.getText();
+    @Override
+    public void actionPerformed(ActionEvent e) {
 
         String cmd = e.getActionCommand();
         switch (cmd) {
             case "login":
                 try {
-                    if (connection.authorization(userName_text.getText() + " " + password_text.getText())) {
+                    if (connection.login(userName_text.getText(), password_text.getText())) {
                         dispose();
-                        new ChatWindow(connection);
+//                        this.setVisible(false);
+
+                        chatWindow = new ChatWindow(connection);
+//                        chatWindow.setVisible(true);
                         break;
                     } else {
                         JOptionPane.showMessageDialog(null, "Incorrect login or password.");
                     }
-
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
                 break;
-            case "registration" :
+            case "registration":
+                // this.setVisible(false);
                 dispose();
-                new RegistrationWindow();
+                new RegistrationWindow(connection);
                 break;
         }
+    }
+
+    public void getMessageFromClient(String msg) {
+//    public void getMessageFromClient (ClientUser connection, String msg) {
+
 
     }
-}
 
+
+    public static void main(String[] args) {
+
+        new MainWindow();
+
+    }
+
+}

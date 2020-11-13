@@ -132,6 +132,8 @@ public class ServerRunner extends Thread {
 
             }
         }
+        String msg = "Login error\n";
+        outputStream.write(msg.getBytes());
         return false;
     }
 

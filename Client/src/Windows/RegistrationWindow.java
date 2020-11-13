@@ -6,7 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-public class RegistrationWindow extends JFrame {
+public class RegistrationWindow extends JFrame  implements ActionListener{
 
     private static final int WIDTH = 450;
     private static final int HEIGHT = 210;
@@ -23,11 +23,14 @@ public class RegistrationWindow extends JFrame {
 
     private JButton registrationButton;
 
-    private ClientUser connection;
+    private Client connection;
 
-    public RegistrationWindow() {
+    public RegistrationWindow(Client connection) {
 
         super("Messenger V.0.01");
+
+        this.connection = connection;
+
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         labelName = new JLabel();
@@ -37,6 +40,7 @@ public class RegistrationWindow extends JFrame {
         labelPassword.setText("Password: ");
         passwordTextField = new JFormattedTextField();
         registrationButton = new JButton("Submit");
+        registrationButton.addActionListener(this);
 
         setSize(WIDTH, HEIGHT); // установка размера окна
         setLocationRelativeTo(null);    // окно всегда в центре
@@ -55,44 +59,41 @@ public class RegistrationWindow extends JFrame {
 
         setVisible(true);
 
-        loginTextField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                userLogin = loginTextField.getText();
-            }
-        });
-        passwordTextField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                userPassword = passwordTextField.getText();
-            }
-        });
-        registrationButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    String serverAnswer = connection.registration(userLogin + " " + userPassword);
-                    if (!"Registration failed".equals(serverAnswer)) {
-                        JOptionPane.showMessageDialog(null,
-                                serverAnswer);
-                        dispose();
-                        new ChatWindow(connection);
-                    } else {
-                        JOptionPane.showMessageDialog(null,
-                                serverAnswer);
-                    }
-                } catch (IOException ioException) {
-                    ioException.printStackTrace();
-                }
-            }
-        });
-
-        setVisible(true);
     }
 
-
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
+//        loginTextField.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                userLogin = loginTextField.getText();
+//            }
+//        });
+//        passwordTextField.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                userPassword = passwordTextField.getText();
+//            }
+//        });
+//        registrationButton.addActionListener(new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        System.out.println("!!!!!!!!!!!!!!");
+        e.getActionCommand();
+        try {
+            if (connection.registration(loginTextField.getText(), passwordTextField.getText())) {
+                //JOptionPane.showMessageDialog(null, connection.getMessage());
+                dispose();
+                new ChatWindow(connection);
+            } else {
+                //JOptionPane.showMessageDialog(null, connection.getMessage());
+            }
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
     }
+//        });
+
+
+//    }
+
 }
 
