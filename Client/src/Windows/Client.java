@@ -11,10 +11,10 @@ public class Client {
     private static Socket clientSocket; //сокет для соединения
     private static BufferedReader consoleReader; // буфер для чтения из консоли
 
-    private static BufferedReader in; // поток чтения из сокета
+    public static BufferedReader in; // поток чтения из сокета
     private static BufferedWriter out; // поток записи в сокет
 
-    public Client () {
+    public Client() {
         start();
     }
 
@@ -56,6 +56,7 @@ public class Client {
     public String getMessage () throws IOException {
 
         String serverAnswer = in.readLine();
+
         return serverAnswer;
 
     }

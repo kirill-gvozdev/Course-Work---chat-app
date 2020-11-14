@@ -13,7 +13,7 @@ public class MainWindow extends JFrame implements ActionListener {
     JButton login, registration;
 
     Client connection;
-    ChatWindow chatWindow;
+    ChatWindow chat;
     RegistrationWindow registrationWindow;
 
     MainWindow() {
@@ -64,10 +64,12 @@ public class MainWindow extends JFrame implements ActionListener {
                 try {
                     if (connection.login(userName_text.getText(), password_text.getText())) {
                         dispose();
-//                        this.setVisible(false);
 
-                        chatWindow = new ChatWindow(connection);
-//                        chatWindow.setVisible(true);
+                        chat = new ChatWindow(connection);
+                        //connection.setChat();
+//                        connection.getChat(chat);
+
+
                         break;
                     } else {
                         JOptionPane.showMessageDialog(null, "Incorrect login or password.");
@@ -77,7 +79,6 @@ public class MainWindow extends JFrame implements ActionListener {
                 }
                 break;
             case "registration":
-                // this.setVisible(false);
                 dispose();
                 new RegistrationWindow(connection);
                 break;

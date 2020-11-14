@@ -80,11 +80,13 @@ public class RegistrationWindow extends JFrame  implements ActionListener{
         e.getActionCommand();
         try {
             if (connection.registration(loginTextField.getText(), passwordTextField.getText())) {
-                //JOptionPane.showMessageDialog(null, connection.getMessage());
+                JOptionPane.showMessageDialog(null, connection.getMessage());
                 dispose();
-                new ChatWindow(connection);
+                ChatWindow chat = new ChatWindow(connection);
+//                connection.setChat();
+//                connection.getChat(chat);
             } else {
-                //JOptionPane.showMessageDialog(null, connection.getMessage());
+                JOptionPane.showMessageDialog(null, connection.getMessage());
             }
         } catch (IOException ioException) {
             ioException.printStackTrace();

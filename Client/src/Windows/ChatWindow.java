@@ -1,6 +1,8 @@
 package Windows;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,11 +12,11 @@ public class ChatWindow extends JFrame {
 
     private static final int WIDTH = 600;
     private static final int HEIGHT = 400;
-    private JTextField fieldInput;
-    private JTextArea log;
+    private JTextField sendMessageField;
+    private JTextArea logMessageArea;
     Client connection;
 
-    public ChatWindow (Client connect) {
+    public ChatWindow (Client connect) throws IOException {
 
         super("Messenger V.0.01");
 
@@ -22,11 +24,11 @@ public class ChatWindow extends JFrame {
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        fieldInput = new JTextField();
-        log = new JTextArea();
+        sendMessageField = new JTextField();
+        logMessageArea = new JTextArea();
 
-        add(fieldInput, BorderLayout.SOUTH);
-        add(log, BorderLayout.CENTER);
+        add(sendMessageField, BorderLayout.SOUTH);
+        add(logMessageArea, BorderLayout.CENTER);
 
         setSize(WIDTH, HEIGHT); // установка размера окна
         setLocationRelativeTo(null);    // окно всегда в центре
@@ -34,15 +36,44 @@ public class ChatWindow extends JFrame {
 
         setVisible(true);
 
-        fieldInput.addActionListener(new ActionListener() {
+
+//
+//        // Listen for changes in the text
+//        logMessageArea.getDocument().addDocumentListener(new DocumentListener() {
+//            String changedValueOfServerAnswer = log.getText();;
+//            public void changedUpdate(DocumentEvent e) {
+//                updateChatLog(changedValueOfServerAnswer);
+//            }
+//            public void removeUpdate(DocumentEvent e) {
+//                updateChatLog(changedValueOfServerAnswer);
+//            }
+//            public void insertUpdate(DocumentEvent e) {
+//                updateChatLog(changedValueOfServerAnswer);
+//            }
+//
+//            private String serverAnswer = connection.getMessage();
+//
+//            public void updateChatLog(String changedValueOfServerAnswer) {
+//                if (!changedValueOfServerAnswer.equals(serverAnswer)){
+//                  performUpdateChatLog(serverAnswer);
+//                  serverAnswer = changedValueOfServerAnswer;
+//                }
+//            }
+//            public void performUpdateChatLog(String serverAnswer) {
+//                logMessageArea.append(serverAnswer + "\n");
+//            }
+//        });
+
+        sendMessageField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String msg = fieldInput.getText();  // у поля fieldInput через метод getText() получаем строчку, которую ввели
-                if (msg.equals("")) return;         // если это было случайное нажатие. и строка пустая
-                fieldInput.setText(null);           // очищаем поле для нового сообщения
-                logMsg();
+                String msg = sendMessageField.getText();  // у поля fieldInput через метод getText() получаем строчку, которую ввели
+                //if (msg.equals("")) return;         // если это было случайное нажатие. и строка пустая
+                sendMessageField.setText(null);           // очищаем поле для нового сообщения
+                //logMsg(msg);
                 try {
                     connection.sendMessage(msg);
+                    logMessageArea.append(connect.getMessage() + "\n");
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
@@ -50,30 +81,27 @@ public class ChatWindow extends JFrame {
         });
     }
 
-    private void logMsg () {
+    public void logMsg (String msg) {
         try {
-            log.append(connection.getMessage() + "\n");
+            logMessageArea.append(connection.getMessage() + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private synchronized void printMsg (String msg) {
+    public synchronized void printMsg (String msg) {
         // т.к. он вызывается из разных потоков, нужно снова написать конструкцию:
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 // внутри Runnable можно работать с элементами управления окном
-                try {
-                    log.append(connection.getMessage() + "\n"); // добавляем присланную строку, не забывая про символ новой строки (он в строке сообщение отсутствует)
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                logMessageArea.append(msg + "\n"); // добавляем присланную строку, не забывая про символ новой строки (он в строке сообщение отсутствует)
                 // есть ещё одная заморочка JTextArea - даже если поставить авто скролл в true, он не будет корректно работать
                 // чтобы заставить его гарантировано работать, и чтобы ткст автоматичсеки поднимался:
-                log.setCaretPosition(log.getDocument().getLength()); //  установки коретки в самый конец документа
+                logMessageArea.setCaretPosition(logMessageArea.getDocument().getLength()); //  установки коретки в самый конец документа
 
             }
         });
     }
+
 }

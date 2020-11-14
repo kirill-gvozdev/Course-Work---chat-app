@@ -112,16 +112,16 @@ public class ServerRunner extends Thread {
 
                         List<ServerRunner> serverRunners = peer.getServerRunners();
 
-                        for (ServerRunner runner : serverRunners) {
-                            if (!login.equals(runner.login)) {
-                                String currentConnection = "online " + runner.getLogin() + "\n";
-                                broadcast(currentConnection);
-                            }
-                        }
-                        String onlineStatus = "online " + login + "\n";
-                        for (ServerRunner runner : serverRunners) {
-                            runner.broadcast(onlineStatus);
-                        }
+//                        for (ServerRunner runner : serverRunners) {
+//                            if (!login.equals(runner.login)) {
+//                                String currentConnection = "online " + runner.getLogin() + "\n";
+//                                broadcast(currentConnection);
+//                            }
+//                        }
+//                        String onlineStatus = "online " + login + "\n";
+//                        for (ServerRunner runner : serverRunners) {
+//                            runner.broadcast(onlineStatus);
+//                        }
 
                         return true;
                     } else {
@@ -138,6 +138,8 @@ public class ServerRunner extends Thread {
     }
 
     private void broadcast(String onlineStatus) throws IOException {
-        outputStream.write(onlineStatus.getBytes());
+        if (onlineStatus != null) {
+            outputStream.write(onlineStatus.getBytes());
+        }
     }
 }
