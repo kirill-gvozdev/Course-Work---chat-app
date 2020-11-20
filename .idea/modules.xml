@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Client/Client.iml" filepath="$PROJECT_DIR$/Client/Client.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/Course-Work---chat-app.iml" filepath="$PROJECT_DIR$/.idea/Course-Work---chat-app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Messanger/Messanger.iml" filepath="$PROJECT_DIR$/Messanger/Messanger.iml" />
     </modules>
   </component>
 </project>
