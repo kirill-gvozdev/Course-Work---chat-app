@@ -36,7 +36,6 @@ public class Client {
 
     public boolean registration(String userName, String password) throws IOException {
         String login = userName + " " + password;
-        System.out.println(login);
         out.write("registration " + login + "\n");
         out.flush();
         String serverAnswer = in.readLine();
@@ -44,20 +43,20 @@ public class Client {
 
         if (serverAnswer.equalsIgnoreCase("New user registered " + "login: " + userName + ", password: " + password)) {
 
-            System.out.println("Authorization completed successfully! Let start chatting >>>");
+            System.out.println("Registration completed successfully!");
             login(userName, password);
             return true;
         } else {
-            System.out.println("Authorization failed. Username or password is not correct >>> quit");
+            System.out.println("Registration failed. Username or password is not correct >>> quit");
             return false;
         }
     }
 
     public String getMessage () throws IOException {
 
-        String serverAnswer = in.readLine();
+        if (in.ready()) return in.readLine();
 
-        return serverAnswer;
+        return in.readLine();
 
     }
 

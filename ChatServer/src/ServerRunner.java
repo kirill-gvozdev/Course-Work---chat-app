@@ -1,5 +1,8 @@
+import java.awt.*;
+import java.awt.font.TextAttribute;
 import java.io.*;
 import java.net.Socket;
+import java.text.AttributedString;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,6 +89,13 @@ public class ServerRunner extends Thread {
         List<ServerRunner> serverRunners = peer.getServerRunners();
         tokens[0] = "";
         String str = String.join(" ", tokens);
+
+        Font f = new Font("LucidaSans", Font.BOLD, 12);
+
+        AttributedString boldText= new AttributedString(login + " says ");
+
+        boldText.addAttribute(TextAttribute.FONT, f);
+
 
         for (ServerRunner runner : serverRunners) {
             String msg = login + " says " + " " + str + "\n";

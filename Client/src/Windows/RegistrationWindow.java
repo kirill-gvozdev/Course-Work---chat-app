@@ -1,101 +1,116 @@
 package Windows;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 
 public class RegistrationWindow extends JFrame  implements ActionListener{
 
     private static final int WIDTH = 450;
-    private static final int HEIGHT = 210;
+    private static final int HEIGHT = 200;
 
-    JPanel panel;
-
-    private JLabel labelName, message;
-    private JTextField loginTextField;
-    private String userLogin;
-
-    private JLabel labelPassword;
-    private JFormattedTextField passwordTextField;
-    private String userPassword;
-
+    private JPanel panel;
+    private JLabel labelLogin, labelPassword, labelConfirmation;
+    private JTextField loginField;
+    private JFormattedTextField passwordField, passwordConfirmation;
     private JButton registrationButton;
-
     private Client connection;
+    private JOptionPane errorMessage;
+    static JLabel imgLabel;
 
     public RegistrationWindow(Client connection) {
+        super("Messenger V.0.01. Registration.");
 
-        super("Messenger V.0.01");
+        ImageIcon img = new ImageIcon("C:/Users/tipka/Desktop/IMG_small.png");
+        setIconImage(img.getImage());
 
-        this.connection = connection;
+        panel = new JPanel(); //
+        add(panel);
+        panel.setLayout(null);
+
+        // User label
+        labelLogin = new JLabel("New login: ");
+        labelLogin.setBounds(20,20,80,25);
+        panel.add(labelLogin);
+
+        // User text field
+        loginField = new JTextField(20);
+        loginField.setBounds(100,20,165,25);
+        panel.add(loginField);
+
+        // Password label
+        labelPassword = new JLabel("Password: ");
+        labelPassword.setBounds(20,50,80,25);
+        panel.add(labelPassword);
+
+        // Password text
+        passwordField = new JFormattedTextField();
+        passwordField.setBounds(100,50,165,25);
+        panel.add(passwordField);
+
+        // Confirmation label
+        labelConfirmation = new JLabel("Confirm: ");
+        labelConfirmation.setBounds(20,80,100,25);
+        panel.add(labelConfirmation);
+
+        // Password confirmation
+        passwordConfirmation = new JFormattedTextField();
+        passwordConfirmation.setBounds(100,80,165,25);
+        panel.add(passwordConfirmation);
+
+        registrationButton = new JButton("Submit");
+        registrationButton.setBounds(165,120,100,25);
+
+        registrationButton.addActionListener(this);
+        panel.add(registrationButton);
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-        labelName = new JLabel();
-        labelName.setText("User name: ");
-        loginTextField = new JTextField();
-        labelPassword = new JLabel();
-        labelPassword.setText("Password: ");
-        passwordTextField = new JFormattedTextField();
-        registrationButton = new JButton("Submit");
-        registrationButton.addActionListener(this);
-
+        this.addWindowListener (new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                // При закрытии окна отправляет управляющее слово quit в Client
+                connection.finish();
+            }
+        });
         setSize(WIDTH, HEIGHT); // установка размера окна
         setLocationRelativeTo(null);    // окно всегда в центре
         setAlwaysOnTop(true);   // окно поверх других окон
 
-        panel = new JPanel(new GridLayout(3, 1));
-
-        panel.add(labelName);
-        panel.add(loginTextField);
-        panel.add(labelPassword);
-        panel.add(passwordTextField);
-        message = new JLabel();
-        panel.add(message);
-        panel.add(registrationButton);
-        add(panel, BorderLayout.CENTER);
+        ImageIcon mainLogo = new ImageIcon("C:/Users/tipka/Desktop/IMG_main.png");
+        imgLabel = new JLabel(mainLogo);
+        imgLabel.setBounds(255,5,200,150);
+        panel.add(imgLabel);
 
         setVisible(true);
 
+        this.connection = connection;
     }
 
-//        loginTextField.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                userLogin = loginTextField.getText();
-//            }
-//        });
-//        passwordTextField.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                userPassword = passwordTextField.getText();
-//            }
-//        });
-//        registrationButton.addActionListener(new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println("!!!!!!!!!!!!!!");
-        e.getActionCommand();
-        try {
-            if (connection.registration(loginTextField.getText(), passwordTextField.getText())) {
-                JOptionPane.showMessageDialog(null, connection.getMessage());
-                dispose();
-                ChatWindow chat = new ChatWindow(connection);
-//                connection.setChat();
-//                connection.getChat(chat);
-            } else {
-                JOptionPane.showMessageDialog(null, connection.getMessage());
-            }
-        } catch (IOException ioException) {
+        System.out.println(passwordField.getText());
+        System.out.println(passwordConfirmation.getText());
+        if (passwordField.getText().compareTo(passwordConfirmation.getText()) == 0) {
+            try {
+                if (connection.registration(loginField.getText(), passwordField.getText())) {
+                    JOptionPane.showMessageDialog(panel, "Registration is completed.");
+                    dispose();
+                    new ChatWindow(connection);
+                } else {
+                    JOptionPane.showMessageDialog(this, connection.getMessage());
+                }
+            } catch (IOException ioException) {
             ioException.printStackTrace();
+            }
+        } else {
+            passwordField.setText("");
+            passwordConfirmation.setText("");
+            JOptionPane.showMessageDialog(this, "Passwords do not match.");
+
         }
     }
-//        });
-
-
-//    }
-
 }
 
