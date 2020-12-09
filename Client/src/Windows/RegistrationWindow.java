@@ -18,11 +18,18 @@ public class RegistrationWindow extends JFrame  implements ActionListener{
     private JFormattedTextField passwordField, passwordConfirmation;
     private JButton registrationButton;
     private Client connection;
-    private JOptionPane errorMessage;
     static JLabel imgLabel;
 
     public RegistrationWindow(Client connection) {
-        super("Messenger V.0.01. Registration.");
+        super("Registration");
+
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        this.addWindowListener (new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                connection.finish();
+            }
+        });
 
         ImageIcon img = new ImageIcon("C:/Users/tipka/Desktop/IMG_small.png");
         setIconImage(img.getImage());
@@ -67,17 +74,11 @@ public class RegistrationWindow extends JFrame  implements ActionListener{
         registrationButton.addActionListener(this);
         panel.add(registrationButton);
 
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.addWindowListener (new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                // При закрытии окна отправляет управляющее слово quit в Client
-                connection.finish();
-            }
-        });
-        setSize(WIDTH, HEIGHT); // установка размера окна
-        setLocationRelativeTo(null);    // окно всегда в центре
-        setAlwaysOnTop(true);   // окно поверх других окон
+
+
+        setSize(WIDTH, HEIGHT);
+        setLocationRelativeTo(null);    // always in the center
+        setAlwaysOnTop(true);   // on top of other windows
 
         ImageIcon mainLogo = new ImageIcon("C:/Users/tipka/Desktop/IMG_main.png");
         imgLabel = new JLabel(mainLogo);
@@ -91,14 +92,12 @@ public class RegistrationWindow extends JFrame  implements ActionListener{
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println(passwordField.getText());
-        System.out.println(passwordConfirmation.getText());
         if (passwordField.getText().compareTo(passwordConfirmation.getText()) == 0) {
             try {
                 if (connection.registration(loginField.getText(), passwordField.getText())) {
                     JOptionPane.showMessageDialog(panel, "Registration is completed.");
                     dispose();
-                    new ChatWindow(connection);
+                    new Chat (connection);
                 } else {
                     JOptionPane.showMessageDialog(this, connection.getMessage());
                 }

@@ -8,11 +8,10 @@ public class Client {
 
     private static final int PORT = 8818;
     private static final String HOST = "localhost";
-    private static Socket clientSocket; //сокет для соединения
-    private static BufferedReader consoleReader; // буфер для чтения из консоли
+    private static Socket clientSocket;
 
-    public static BufferedReader in; // поток чтения из сокета
-    private static BufferedWriter out; // поток записи в сокет
+    public static BufferedReader in; // socket reading stream (buffer)
+    private static BufferedWriter out; // socket writing stream (buffer)
 
     public Client() {
         start();
@@ -24,7 +23,7 @@ public class Client {
         out.flush();
         System.out.println("...waiting for server' answer...");
         String serverAnswer = in.readLine();
-        System.out.println(serverAnswer);
+//        System.out.println(serverAnswer);
         if (!serverAnswer.equalsIgnoreCase("Login error")) {
 //        if (serverAnswer.equalsIgnoreCase("ok login")) {
             System.out.println("Authorization completed successfully! Let start chatting >>>");
@@ -90,5 +89,4 @@ public class Client {
             e.printStackTrace();
         }
     }
-
 }

@@ -9,6 +9,7 @@ import java.io.IOException;
 
 public class MainWindow extends JFrame implements ActionListener {
     static Client connection = new Client();
+    static JPanel panel;
     static JPasswordField passwordText;
     static JTextField userText;
     static JFrame frame;
@@ -21,21 +22,21 @@ public class MainWindow extends JFrame implements ActionListener {
     public MainWindow() {
         ImageIcon img = new ImageIcon("C:/Users/tipka/Desktop/IMG_small.png");
         frame = new JFrame("Login");
+        frame.setResizable(false);
         frame.setIconImage(img.getImage());
         frame.setSize(450, 200);
         frame.setLocationRelativeTo(null);
         frame.setAlwaysOnTop(true);
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.addWindowListener (new WindowAdapter() {
+        frame.addWindowListener (new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                // При закрытии окна отправляет управляющее слово quit в Client
                 connection.finish();
             }
         });
 
-        JPanel panel = new JPanel();
+        panel = new JPanel();
         frame.add(panel);
 
         panel.setLayout(null);
@@ -92,10 +93,10 @@ public class MainWindow extends JFrame implements ActionListener {
                     if (connection.login(userText.getText(), passwordText.getText())) {
                         frame.dispose();
 //                        dispose();
-                        new ChatWindow(connection);
+                        new Chat(connection);
                         break;
                     } else {
-                        JOptionPane.showMessageDialog(null, "Incorrect login or password.");
+                        JOptionPane.showMessageDialog(panel, "Incorrect login or password.");
                         userText.setText(null);
                         passwordText.setText(null);
                     }

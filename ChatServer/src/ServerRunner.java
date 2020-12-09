@@ -48,6 +48,9 @@ public class ServerRunner extends Thread {
                 if ("quit".equalsIgnoreCase(cmd)) {
                     logOff();
                     break;
+                } else if ("terminate".equalsIgnoreCase(cmd)) {
+                    terminate();
+                    break;
                 } else if ("login".equalsIgnoreCase(cmd)) {
                     handleLogin(outputStream, tokens);
                 } else if ("send".equalsIgnoreCase(cmd)) {
@@ -55,7 +58,6 @@ public class ServerRunner extends Thread {
                 } else if ("registration".equalsIgnoreCase(cmd)) {
                     registration(outputStream, tokens);
                 }
-
             }
         }
         clientSocket.close();
@@ -67,7 +69,7 @@ public class ServerRunner extends Thread {
             String password = tokens[2];
             User newUser = new User(login, password);
             db.addNewUser(newUser);
-            String msg = "New user registered " + "login: " + login + ", password: " + password +"\n";
+            String msg = "New user registered " + "login: " + login + ", password: " + password + "\n";
             outputStream.write(msg.getBytes());
         } else {
             String msg = "Registration failed\n";
@@ -75,9 +77,13 @@ public class ServerRunner extends Thread {
         }
     }
 
+    private void terminate() {
+        System.out.println("Connection terminated");
+        peer.removeClient(this);
+    }
+
     private void logOff() throws IOException {
         List<ServerRunner> serverRunners = peer.getServerRunners();
-        System.out.println(login);
         String onlineStatus = "offline " + login + "\n";
         for (ServerRunner runner : serverRunners) {
             runner.broadcast(onlineStatus);
@@ -92,13 +98,13 @@ public class ServerRunner extends Thread {
 
         Font f = new Font("LucidaSans", Font.BOLD, 12);
 
-        AttributedString boldText= new AttributedString(login + " says ");
+        AttributedString boldText = new AttributedString(login + " says ");
 
         boldText.addAttribute(TextAttribute.FONT, f);
 
 
         for (ServerRunner runner : serverRunners) {
-            String msg = login + " says " + " " + str + "\n";
+            String msg = login + " says:" + " " + str + "\n";
             runner.broadcast(msg);
         }
     }
@@ -122,16 +128,19 @@ public class ServerRunner extends Thread {
 
                         List<ServerRunner> serverRunners = peer.getServerRunners();
 
-//                        for (ServerRunner runner : serverRunners) {
-//                            if (!login.equals(runner.login)) {
-//                                String currentConnection = "online " + runner.getLogin() + "\n";
-//                                broadcast(currentConnection);
-//                            }
-//                        }
-//                        String onlineStatus = "online " + login + "\n";
-//                        for (ServerRunner runner : serverRunners) {
-//                            runner.broadcast(onlineStatus);
-//                        }
+                        for (ServerRunner runner : serverRunners) {
+                            if (!login.equals(runner.login)) {
+                                String currentConnection = "online " + runner.getLogin() + "\n";
+                                broadcast(currentConnection);
+                            }
+                        }
+
+                        String onlineStatus = "online " + login + "\n";
+                        for (ServerRunner runner : serverRunners) {
+                            if (!login.equals(runner.login)) {
+                                runner.broadcast(onlineStatus);
+                            }
+                        }
 
                         return true;
                     } else {
@@ -147,9 +156,9 @@ public class ServerRunner extends Thread {
         return false;
     }
 
-    private void broadcast(String onlineStatus) throws IOException {
-        if (onlineStatus != null) {
-            outputStream.write(onlineStatus.getBytes());
+    private void broadcast(String msg) throws IOException {
+        if (msg != null) {
+            outputStream.write(msg.getBytes());
         }
     }
 }
