@@ -1,32 +1,42 @@
-package Test;
-
-import Windows.ChatWindow;
-import Windows.Client;
-import Windows.MainWindow;
-import Windows.RegistrationWindow;
+package Windows;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 
-public class Login2 extends JFrame implements ActionListener {
+public class MainWindow extends JFrame implements ActionListener {
     static Client connection = new Client();
+    static JPanel panel;
     static JPasswordField passwordText;
     static JTextField userText;
-
-    ChatWindow chat;
+    static JFrame frame;
+    static JLabel imgLabel;
 
     public static void main(String[] args) {
-        new Login2();
+        new MainWindow();
     }
 
-    public Login2() {
-        JFrame frame = new JFrame("Login");
-        frame.setSize(350, 200);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    public MainWindow() {
+        ImageIcon img = new ImageIcon("C:/Users/tipka/Desktop/IMG_small.png");
+        frame = new JFrame("Login");
+        frame.setResizable(false);
+        frame.setIconImage(img.getImage());
+        frame.setSize(450, 200);
+        frame.setLocationRelativeTo(null);
+        frame.setAlwaysOnTop(true);
 
-        JPanel panel = new JPanel();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.addWindowListener (new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                connection.finish();
+            }
+        });
+
+        panel = new JPanel();
         frame.add(panel);
 
         panel.setLayout(null);
@@ -53,17 +63,25 @@ public class Login2 extends JFrame implements ActionListener {
 
         //Login button
         JButton loginButton = new JButton("login");
-        loginButton.setBounds(100, 90, 100, 25);
+        loginButton.setBounds(165, 85, 100, 25);
         loginButton.addActionListener(this);
         loginButton.setActionCommand("login");
         panel.add(loginButton);
 
         //Registration button
         JButton registrationButton = new JButton("registration");
-        registrationButton.setBounds(100, 120, 100, 25);
+        registrationButton.setBounds(165, 120, 100, 25);
+        registrationButton.addActionListener(this);
+        registrationButton.setActionCommand("registration");
         panel.add(registrationButton);
 
+        ImageIcon mainLogo = new ImageIcon("C:/Users/tipka/Desktop/IMG_main.png");
+        imgLabel = new JLabel(mainLogo);
+        imgLabel.setBounds(255,5,200,150);
+        panel.add(imgLabel);
+
         frame.setVisible(true);
+
     }
 
     @Override
@@ -73,23 +91,22 @@ public class Login2 extends JFrame implements ActionListener {
             case "login":
                 try {
                     if (connection.login(userText.getText(), passwordText.getText())) {
-                        dispose();
-
-                        chat = new ChatWindow(connection);
-                        //connection.setChat();
-//                        connection.getChat(chat);
-
-
+                        frame.dispose();
+//                        dispose();
+                        new Chat(connection);
                         break;
                     } else {
-                        JOptionPane.showMessageDialog(null, "Incorrect login or password.");
+                        JOptionPane.showMessageDialog(panel, "Incorrect login or password.");
+                        userText.setText(null);
+                        passwordText.setText(null);
                     }
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
                 break;
             case "registration":
-                //dispose();
+//                dispose();
+                frame.dispose();
                 new RegistrationWindow(connection);
                 break;
         }

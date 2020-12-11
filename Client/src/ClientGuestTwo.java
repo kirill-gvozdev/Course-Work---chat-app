@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.Socket;
 
-public class Client {
+public class ClientGuestTwo {
 
 
     private static final int PORT = 8818;
@@ -9,15 +9,13 @@ public class Client {
     private static Socket clientSocket; //сокет для соединения
     private static BufferedReader consoleReader; // буфер для чтения из консоли
 
-    OutputStream outputStream;
     private static BufferedReader in; // поток чтения из сокета
     private static BufferedWriter out; // поток записи в сокет
 
-    private boolean login () throws IOException {
+    public boolean login () throws IOException {
         System.out.println("Enter username and password separated by a space: ");
         String login = consoleReader.readLine();
         out.write("login " + login + "\n");
-        //out.write(login + "\n");
         out.flush();
         System.out.println("...waiting for server' answer...");
         String serverAnswer = in.readLine();
@@ -26,31 +24,29 @@ public class Client {
             return true;
         }
         else {
-            System.out.println("Authorization failed. Username or password is not correct >>> quit");
-            return false;
-        }
-    }
-
-    private void chatting () throws IOException {
-        while (!clientSocket.isClosed()) {
-
-            String serverAnswer = in.readLine(); //null;
-            //while (serverAnswer == null) {
-            //    serverAnswer = in.readLine();}
-
-
-            System.out.print("  >>>>  ");
-            String msg = consoleReader.readLine();
-            if (msg.equals("quit")) {
-                out.write(msg);
-                out.flush();
-                break;
-            } else if(msg.equals("")) continue;
-            out.write("send " + msg + "\n");
+            out.write("registration " + login + "\n");
             out.flush();
-
+            if (!serverAnswer.equalsIgnoreCase("Registration failed")) {
+                System.out.println("Authorization completed successfully! Let start chatting >>>");
+                return true;
+            } else {
+                System.out.println("Authorization failed. Username or password is not correct >>> quit");
+                return false;
+            }
         }
     }
+
+
+//
+//
+//        if (consoleReader.ready()) {
+//            String msg = consoleReader.readLine();
+//            if (!msg.equals("")) {
+//                if (msg.equals("quit")) out.write(msg);
+//                else out.write("send " + msg + "\n");
+//                out.flush();
+//            }
+//        }
 
     private void getMessage () throws IOException {
 
@@ -61,23 +57,26 @@ public class Client {
 
     }
 
-    private void sendMessage () throws IOException {
+    private boolean sendMessage () throws IOException {
         if (consoleReader.ready()) {
             String msg = consoleReader.readLine();
             if (!msg.equals("")) {
                 if (msg.equals("quit")) {
                     out.write(msg);
+                    out.flush();
+                    return false;
                 } else {
                     out.write("send " + msg + "\n");
+                    out.flush();
                 }
-                out.flush();
             }
         }
+        return true;
     }
 
     public static void main(String[] args) {
 
-        Client client = new Client();
+        ClientGuestTwo client = new ClientGuestTwo();
 
         consoleReader = new BufferedReader(new InputStreamReader(System.in));
 
@@ -86,11 +85,11 @@ public class Client {
             clientSocket = new Socket(HOST, PORT);
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
+            boolean chatting = true;
             if (client.login()) {
-                while (!clientSocket.isClosed()) {
+                while (chatting) {
                     client.getMessage();
-                    client.sendMessage();
+                    chatting = client.sendMessage();
                 }
             }
         } catch (IOException e) {

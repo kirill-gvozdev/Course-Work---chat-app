@@ -1,5 +1,8 @@
+import java.awt.*;
+import java.awt.font.TextAttribute;
 import java.io.*;
 import java.net.Socket;
+import java.text.AttributedString;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,9 +13,7 @@ public class ServerRunner extends Thread {
     OutputStream outputStream;
     boolean onlineStatus = false;
 
-
     UserDatabase db = new UserDatabase();
-
 
     public ServerRunner(Peer peer, Socket clientSocket) {
         this.peer = peer;
@@ -45,6 +46,9 @@ public class ServerRunner extends Thread {
                 if ("quit".equalsIgnoreCase(cmd)) {
                     logOff();
                     break;
+                } else if ("terminate".equalsIgnoreCase(cmd)) {
+                    terminate();
+                    break;
                 } else if ("login".equalsIgnoreCase(cmd)) {
                     handleLogin(outputStream, tokens);
                 } else if ("send".equalsIgnoreCase(cmd)) {
@@ -58,10 +62,14 @@ public class ServerRunner extends Thread {
                 } else if ("registration".equalsIgnoreCase(cmd)) {
                     registration(outputStream, tokens);
                 }
-
             }
         }
         clientSocket.close();
+    }
+
+    private void terminate() {
+        System.out.println("Connection terminated 101");
+        peer.removeClient(this);
     }
 
     private void registration(OutputStream outputStream, String[] tokens) throws IOException, ClassNotFoundException {
@@ -96,8 +104,14 @@ public class ServerRunner extends Thread {
         tokens[0] = "";
         String str = String.join(" ", tokens);
 
+        Font f = new Font("LucidaSans", Font.BOLD, 12);
+
+        AttributedString boldText= new AttributedString(login + " says ");
+
+        boldText.addAttribute(TextAttribute.FONT, f);
+
         for (ServerRunner runner : serverRunners) {
-            String msg = login + " says " + " " + str + "\n";
+            String msg = boldText + str + "\n";
             runner.broadcast(msg);
         }
     }
@@ -120,7 +134,6 @@ public class ServerRunner extends Thread {
                         System.out.println("User logged in: " + login);
 
                         List<ServerRunner> serverRunners = peer.getServerRunners();
-
                         for (ServerRunner runner : serverRunners) {
                             if (!login.equals(runner.login)) {
                                 String currentConnection = "online " + runner.getLogin() + "\n";

@@ -52,31 +52,3 @@ public class LandingPage extends JFrame implements ActionListener{
         });
     }
 }
-
-
-
-
-   /* public LandingPage(String title) {
-        loginButton = new JButton("Login");
-        loginButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                new LoginWindow();
-                LandingPage.this.setVisible(false);
-            }
-
-        });
-        setTitle("Form 1");
-        getContentPane().add(loginButton, BorderLayout.CENTER);
-        setLocationRelativeTo(null);
-        pack();
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setVisible(true);
-
-        public static void main(String[] args) {
-        JFrame frame = new LandingPage("Chat");
-        frame.setVisible(true);
-    }
-    }
-*/
