@@ -92,7 +92,6 @@ public class MainWindow extends JFrame implements ActionListener {
                 try {
                     if (connection.login(userText.getText(), passwordText.getText())) {
                         frame.dispose();
-//                        dispose();
                         new Chat(connection);
                         break;
                     } else {
@@ -105,7 +104,6 @@ public class MainWindow extends JFrame implements ActionListener {
                 }
                 break;
             case "registration":
-//                dispose();
                 frame.dispose();
                 new RegistrationWindow(connection);
                 break;

@@ -13,7 +13,6 @@ public class Chat extends JFrame implements ActionListener {
     private JTextArea logMessageArea;
     private JScrollPane logMessageAreaScroll;
     private JTextField sendMessageField;
-    private JPanel background;
     Client connection;
     Timer timer;
 
@@ -41,10 +40,6 @@ public class Chat extends JFrame implements ActionListener {
         // add icon
         ImageIcon img = new ImageIcon("C:/Users/tipka/Desktop/IMG_small.png");
         frame.setIconImage(img.getImage());
-
-//        background = new JPanel();
-//        background.setBounds(5,5,640,440);
-//        frame.add(background);
 
         final ImageIcon imageIcon = new ImageIcon("C:/Users/tipka/Desktop/IMG_background.png");
         // add log area

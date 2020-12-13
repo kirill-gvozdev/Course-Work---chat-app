@@ -23,9 +23,7 @@ public class Client {
         out.flush();
         System.out.println("...waiting for server' answer...");
         String serverAnswer = in.readLine();
-//        System.out.println(serverAnswer);
         if (!serverAnswer.equalsIgnoreCase("Login error")) {
-//        if (serverAnswer.equalsIgnoreCase("ok login")) {
             System.out.println("Authorization completed successfully! Let start chatting >>>");
             return true;
         }
